@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寻宝之旅动画版</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+
+  .stage {
+    margin: 20px auto;
+    width: 900px;
+    height: 900px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #333;
+  }
+
+  .treasure-hunt {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+
+  .clue, .temple, .guard, .trap, .chest {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1s;
+  }
+
+  .clue {
+    background-image: url('https://img95.699pic.com/photo/60005/8643.jpg_wh300.jpg!/fh/300/quality/90');
+  }
+
+  .temple {
+    background-image: url('https://img-baofun.zhhainiao.com/pcwallpaper_ugc/scene/675b3e7809e96ccb45f62fde8f919e18_preview.jpg?x-oss-process=image/resize,type_6,m_fill,h_228,w_406');
+  }
+
+  .guard {
+    background-image: url('https://tse1-mm.cn.bing.net/th/id/OIP-C.yV8X9VjYo2Z6qeFlEaiqUQHaJ4?rs=1&pid=ImgDetMain');
+  }
+
+  .trap {
+    background-image: url('https://ts1.cn.mm.bing.net/th/id/R-C.90c1233eacf4558f2b4b9c7e8f059949?rik=EVB5rFYkHWC1vg&riu=http%3a%2f%2fwww.xinfajia.net%2fupfile%2fimage%2f20180816%2f1534431864575030217.jpg&ehk=L8oVdwhxI2ONkRapIhrahJz2KyAwL%2bACGpxsgfgoGHM%3d&risl=&pid=ImgRaw&r=0');
+  }
+
+  .chest {
+    background-image: url('https://img95.699pic.com/photo/60021/9355.jpg_wh300.jpg');
+  }
+
+  .message {
+    margin-top: 20px;
+    transition: opacity 0.5s;
+  }
+
+  .hidden {
+    opacity: 0;
+  }
+
+  .visible {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="treasure-hunt">
+    <div class="clue" id="clue"></div>
+    <div class="temple" id="temple"></div>
+    <div class="guard" id="guard"></div>
+    <div class="trap" id="trap"></div>
+    <div class="chest" id="chest"></div>
+  </div>
+</div>
+
+<p class="message hidden" id="message">点击开始寻宝之旅！</p>
+
+<button onclick="startAdventure()">开始冒险</button>
+
+<!-- 文件输入用于选择音频文件 -->
+<input type="file" id="audioFile" accept="audio/*">
+
+<!-- 背景音乐音频元素 -->
+<audio id="backgroundMusic" controls></audio>
+
+<script>
+  document.getElementById('audioFile').addEventListener('change', function(event) {
+    var file = event.target.files[0];
+    var backgroundMusic = document.getElementById('backgroundMusic');
+    backgroundMusic.src = URL.createObjectURL(file);
+  });
+
+  function displayMessage(msg) {
+    const messageElement = document.getElementById('message');
+    messageElement.textContent = msg;
+    messageElement.classList.remove('hidden');
+    messageElement.classList.add('visible');
+  }
+
+  function showStage(stageId) {
+    const stageElement = document.getElementById(stageId);
+    stageElement.style.opacity = 1;
+    setTimeout(() => {
+      stageElement.style.opacity = 0;
+    }, 1000);
+  }
+
+  function startAdventure() {
+    displayMessage("古老的图书馆里，你发现了一张神秘的地图...");
+    showStage('clue');
+
+    setTimeout(() => {
+      displayMessage("跟随地图的指引，你来到了一座神秘的神庙...");
+      showStage('temple');
+    }, 2000);
+
+    setTimeout(() => {
+      displayMessage("糟糕！神庙的守卫发现了你...");
+      showStage('guard');
+    }, 4000);
+
+    setTimeout(() => {
+      displayMessage("你机智地避开了守卫，但神庙内布满了陷阱...");
+      showStage('trap');
+    }, 6000);
+
+    setTimeout(() => {
+      displayMessage("你巧妙地避开了所有陷阱，发现了一个金光闪闪的宝箱！");
+      showStage('chest');
+      updateGameHistory('已完成寻宝之旅');
+    }, 8000);
+  }
+
+  function savePlayerInfo(playerId, nickname, gameHistory) {
+    const playerInfo = {
+      playerId: playerId,
+      nickname: nickname,
+      gameHistory: gameHistory
+    };
+    localStorage.setItem('playerInfo', JSON.stringify(playerInfo));
+  }
+
+  function getPlayerInfo() {
+    const playerInfo = localStorage.getItem('playerInfo');
+    return playerInfo ? JSON.parse(playerInfo) : null;
+  }
+
+  function resetGame() {
+    localStorage.removeItem('playerInfo');
+    window.location.reload();
+  }
+
+  window.addEventListener('load', function() {
+    const playerInfo = getPlayerInfo();
+    if (playerInfo) {
+      displayMessage(`欢迎回来，${playerInfo.nickname}！你的游戏历史：${playerInfo.gameHistory}`);
+      document.getElementById('message').innerHTML += '<br><button onclick="resetGame()">重新开始冒险</button>';
+    }
+  });
+
+  function updateGameHistory(newHistory) {
+    const playerInfo = getPlayerInfo() || { playerId: 'defaultPlayerId', nickname: 'defaultNickname', gameHistory: '' };
+    const currentHistory = playerInfo.gameHistory;
+    const updatedHistory = `${currentHistory}${newHistory} `;
+    savePlayerInfo(playerInfo.playerId, playerInfo.nickname, updatedHistory);
+  }
+</script>
+
+</body>
+</html>
